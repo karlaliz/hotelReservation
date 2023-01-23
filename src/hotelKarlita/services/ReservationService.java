@@ -11,7 +11,6 @@ import java.util.*;
 import static hotelKarlita.UIHelpers.println;
 
 public class ReservationService {
-
     private static final ReservationService instance = new ReservationService();
 
     public static ReservationService getInstance() {
@@ -20,8 +19,10 @@ public class ReservationService {
 
     private final List<Reservation> reservations = new ArrayList<>();
 
-    private final Map<Integer, IRoom> rooms = new HashMap<Integer, IRoom>();
+    private final Set<IRoom> rooms = new HashSet<>();
 
+    private ReservationService() {
+    }
     public IRoom addRoom(int roomNumber, double price, int roomType) {
         Room newRoom = new Room(roomNumber, price, roomType == 1 ? RoomType.SINGLE : RoomType.DOUBLE);
         addRoom(newRoom);
@@ -29,15 +30,20 @@ public class ReservationService {
     }
 
     public void addRoom(IRoom newRoom) {
-        rooms.put(newRoom.getRoomNumber(), newRoom);
+        rooms.add( newRoom);
     }
 
     public Collection<IRoom> getAllRooms() {
-        return sortByRoomNumber(new ArrayList<>(rooms.values()));
+        return sortByRoomNumber(new ArrayList<>(rooms));
     }
 
     public IRoom getARoom(int roomPick) {
-        return rooms.get(roomPick);
+        for(IRoom room : rooms) {
+            if (room.getRoomNumber() == roomPick) {
+                return room;
+            }
+        }
+        return null;
     }
 
     public Reservation reserveARoom(Date checkInDate, Date checkOutDate, Customer customer, IRoom aRoom) {
@@ -48,7 +54,7 @@ public class ReservationService {
 
     public Collection<IRoom> findRooms(Date checkInDate, Date checkOutDate) {
         List<IRoom> available = new ArrayList<>();
-        for (IRoom room : rooms.values()) {
+        for (IRoom room : rooms) {
             if (roomAvailable(room, checkInDate, checkOutDate)) {
                 available.add(room);
             }

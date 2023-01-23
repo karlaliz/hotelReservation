@@ -21,7 +21,7 @@ public class AdminMenu {
 
     private final AdminResource adminResource;
 
-    public AdminMenu() {
+    private AdminMenu() {
         this.adminResource = AdminResource.getInstance();
     }
 

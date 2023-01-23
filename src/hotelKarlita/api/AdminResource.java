@@ -20,7 +20,7 @@ public class AdminResource {
 
     private final ReservationService reservationService;
 
-    public AdminResource() {
+    private AdminResource() {
         this.customerService = CustomerService.getInstance();
         this.reservationService = ReservationService.getInstance();
     }

@@ -21,7 +21,7 @@ public class HotelResource {
 
     private final ReservationService reservationService;
 
-    public HotelResource() {
+    private HotelResource() {
         this.customerService = CustomerService.getInstance();
         this.reservationService = ReservationService.getInstance();
     }

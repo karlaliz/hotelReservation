@@ -14,6 +14,9 @@ public class CustomerService {
         return instance;
     }
 
+    private CustomerService() {
+    }
+
     private final Map<String, Customer> customerAccounts = new HashMap<String, Customer>();
 
     public Customer addCustomer(String email, String name, String lastName) {

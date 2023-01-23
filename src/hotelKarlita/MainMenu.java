@@ -4,6 +4,7 @@ import hotelKarlita.api.HotelResource;
 import hotelKarlita.model.Customer;
 import hotelKarlita.model.IRoom;
 import hotelKarlita.model.Reservation;
+import hotelKarlita.model.Room;
 
 import java.util.Collection;
 import java.util.Date;
@@ -18,7 +19,7 @@ public class MainMenu {
 
     private final AdminMenu adminMenu;
 
-    public MainMenu() {
+    private MainMenu() {
         this.hotelResource = HotelResource.getInstance();
         this.adminMenu = AdminMenu.getInstance();
     }
@@ -62,7 +63,27 @@ public class MainMenu {
             }
             println("Check out date should be posterior to Check in date. Please try again.");
         }
-        int roomPick = requestRoomPick(checkInDate, checkOutDate);
+
+        Collection<IRoom> available = hotelResource.findARoom(checkInDate, checkOutDate);
+        if (available.isEmpty()) {
+            println("There are no available rooms on " + checkInDate + ". Trying the following week.");
+            checkInDate = addDays(checkInDate, 7);
+            checkOutDate = addDays(checkOutDate, 7);
+            available = hotelResource.findARoom(checkInDate, checkOutDate);
+            if (available.isEmpty()) {
+                println("There are no available rooms on " + checkInDate + ". Sorry.");
+                return;
+            }
+        }
+
+        println("Found these rooms available from:" + checkInDate + " to: " + checkOutDate);
+        printRoomList(available);
+        int roomPick = enterNumber("What room number would you like to reserve. Enter room number", 1, 500);
+        if (!available.contains(new Room(roomPick, 0.0, null))) {
+            println("That room is not available. Sorry.");
+            return;
+        }
+
         Customer customer = findOrCreateAccount();
         IRoom aRoom = hotelResource.getRoom(roomPick + "");
 
@@ -81,28 +102,6 @@ public class MainMenu {
             printReservation(res);
         }
         println("-.-.-.-.-.-.-.-.-.-.");
-    }
-
-    private int requestRoomPick(Date checkInDate, Date checkOutDate) {
-        do {
-            Collection<IRoom> available = hotelResource.findARoom(checkInDate, checkOutDate);
-            while (available.isEmpty()) {
-                println("There are no available rooms on " + checkInDate + ". Trying the following week.");
-                checkInDate = addDays(checkInDate, 7);
-                checkOutDate = addDays(checkOutDate, 7);
-                available = hotelResource.findARoom(checkInDate, checkOutDate);
-            }
-            println("Found these rooms available from:" + checkInDate + " to: " + checkOutDate);
-            printRoomList(available);
-            int roomPick = enterNumber("What room number would you like to reserve. Enter room number", 1, 500);
-            for (IRoom room : available) {
-                if (room.getRoomNumber() == roomPick) {
-                    return roomPick;
-                }
-            }
-            println("That room is not available. Please pick another one");
-        } while (true);
-
     }
 
     private Customer findOrCreateAccount() {
